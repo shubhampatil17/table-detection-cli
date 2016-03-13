@@ -105,10 +105,12 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 
 	for(int i=1; i< xpoints.size(); i++){
 		int s=(int)img.at<uchar>(xpoints[i-1]);
+
 		//=========================================================
 		//Remove squares
 
-		if(s==40 && (int)img.at<uchar>(xpoints[i])==70){
+		if(s==70 && (int)img.at<uchar>(xpoints[i])==40){
+
 
 			continue;
 		}
@@ -120,13 +122,16 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 		}
 
 
-		else if(s==210 && (int)img.at<uchar>(xpoints[i])==200){
+
+		else if(s==200 && (int)img.at<uchar>(xpoints[i])==210){
+
 
 			continue;
 		}
 
 
-	    if(s!=20 && s!=70 && s!=90 && s!=200 && s!=220 && s!=230 && xpoints[i-1].y==xpoints[i].y){
+
+	    if(s!=20 && s!=40 && s!=60 && s!=210 && s!=220 && s!=230 && xpoints[i-1].y==xpoints[i].y){
 
 	    	line( output_image,xpoints[i-1],xpoints[i],Scalar(255,255,255), 1, 8 , 0);
 
@@ -172,6 +177,8 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 	}
 	sort(ypoints.begin(), ypoints.end(), comparison_object);
 
+
+
 	for(int i=1; i< ypoints.size(); i++){
 
 
@@ -180,13 +187,17 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 		//=========================================================
 		//Remove squares
 
-		if(s==10 && (int)img.at<uchar>(ypoints[i])==40){
+
+		if(s==10 && (int)img.at<uchar>(ypoints[i])==70){
+
 
 			continue;
 
 		}
 
-		else if(s==20 && (int)img.at<uchar>(ypoints[i])==70){
+
+		else if(s==20 && (int)img.at<uchar>(ypoints[i])==40){
+
 
 			continue;
 

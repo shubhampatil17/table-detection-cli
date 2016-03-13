@@ -22,6 +22,107 @@ struct comparison_xstruct {
 } sort_x;
 
 
+
+
+int findRetentionRowCount(vector<Point> dataPoints){
+	sort(dataPoints.begin(), dataPoints.end(), sort_x);
+
+	//cout<<dataPoints<<"\n\n";
+
+
+	int rows=0;
+
+	for(int i=1;i< dataPoints.size();i++){
+		if( abs(dataPoints[i].y - dataPoints[i-1].y) > 2)
+			rows++;
+	}
+
+	return rows+1;
+}
+
+
+int findRetentionColCount(vector<Point> dataPoints){
+	sort(dataPoints.begin(), dataPoints.end(), sort_y);
+	
+	//cout<<dataPoints<<"\n";
+
+	int cols=0;
+
+	for(int i=1;i< dataPoints.size();i++){
+		if( abs(dataPoints[i].x - dataPoints[i-1].x) > 2)
+			cols++;
+	}
+
+	return cols+1;
+}
+
+
+vector<vector<Mat>> multiTablePageSegmentation(Mat reconstructImg, Mat pointReducedImage, Mat clrImg, String filename){
+
+	reconstructImg = (255 - reconstructImg);
+
+	Mat labels;
+	Mat stats;
+	Mat centroids;
+
+	int totalLabels = connectedComponentsWithStats(reconstructImg, labels, stats, centroids, 8, CV_32S);
+
+	vector<Mat> tableSegments;
+	vector<Mat> pointSegments;
+
+	int margin = 2;
+
+	for(int i=1;i< totalLabels; i++){
+
+		Point topLeft, bottomRight; 
+		topLeft.x = stats.at<int>(i, CC_STAT_LEFT) - margin;
+		topLeft.y = stats.at<int>(i, CC_STAT_TOP) - margin;
+
+		bottomRight.x = topLeft.x + stats.at<int>(i, CC_STAT_WIDTH) + 2*margin;
+		bottomRight.y = topLeft.y + stats.at<int>(i, CC_STAT_HEIGHT) + 2*margin;
+
+		Mat croppedTableImage = clrImg(Rect(topLeft, bottomRight));
+		Mat croppedPointImage = pointReducedImage(Rect(topLeft, bottomRight));
+
+		//imshow(filename+"_ConnectedTable"+ to_string(i), croppedTableImage);
+		//imshow("ConnectedPoints"+ to_string(i), croppedPointImage);
+
+		tableSegments.push_back(croppedTableImage);
+		pointSegments.push_back(croppedPointImage);
+	}
+
+	vector<vector<Mat>> segmentationData;
+
+	segmentationData.push_back(tableSegments);
+	segmentationData.push_back(pointSegments);
+
+
+	return segmentationData;
+}
+
+
+
+void tableRetention(vector<vector<Mat>> segmentationData, int ACH, String filename){
+
+	vector<Mat> tableSegments = segmentationData[0];
+	vector<Mat> pointSegments = segmentationData[1];
+
+	vector<vector<Mat>> segmentedCellsInDoc;
+
+
+	for(int i=0; i< tableSegments.size(); i++){
+
+		//imshow(filename+"_Table"+to_string(i), tableSegments[i]);
+		//imshow(filename+"_Points"+to_string(i), pointSegments[i]);
+		vector<Point> pointDataset = extractIntersectionDataset(pointSegments[i]);
+		segmentedCellsInDoc.push_back(cellExtraction(pointDataset, tableSegments[i], ACH, i, filename)) ;
+	}
+
+	generateXML(segmentedCellsInDoc);
+	
+}
+
+
 vector<Point> extractIntersectionDataset(Mat img){
 
 	vector<Point> reducedIntersectionPts;
@@ -39,22 +140,19 @@ vector<Point> extractIntersectionDataset(Mat img){
 }
 
 
-void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
+vector<Mat> cellExtraction(vector<Point> dataPoints, Mat img, int ACH, int tableId,String filename){
 
 	
 	int rows = findRetentionRowCount(dataPoints);
 	int cols = findRetentionColCount(dataPoints);
 	
-	cout<<rows<<"\n";
-	cout<<cols<<"\n";
+	//cout<<rows<<"\n";
+	//cout<<cols<<"\n";
 
 	map<string,int> rowIndexer;
 	map<string,int> colIndexer;
 
 	vector<Mat> segmentedMats;
-
-	//int rowIndexer[dataPoints.size()];
-	//int colIndexer[dataPoints.size()];
 
 	Point retentionTable[rows][cols];
 
@@ -63,8 +161,6 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 			retentionTable[i][j] = Point(-1,-1);
 		}
 	}
-
-	//cout<<dataPoints;
 
 	for(int i=0; i<dataPoints.size();i++){
 
@@ -82,9 +178,9 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 
 		rowIndexer.insert(pair<string, int>(to_string(dataPoints[i].x) + "," + to_string(dataPoints[i].y), rowcount));
 
-		//cout<<"Row :"<<rowcount<<", Datapoint :"<<dataPoints[i]<<"\n";
-		//retentionTable[rowcount][colcount] = dataPoints[i];
 	}
+
+
 
 	sort(dataPoints.begin(), dataPoints.end(), sort_y);
 
@@ -104,8 +200,6 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 
 		colIndexer.insert(pair<string, int>(to_string(dataPoints[i].x) + "," + to_string(dataPoints[i].y), colcount));
 
-		//cout<<"Col :"<<colcount<<", Datapoint :"<<dataPoints[i]<<"\n";
-		//retentionTable[rowcount][colcount] = dataPoints[i];
 	}
 
 
@@ -134,16 +228,18 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 		retentionTable[row][col] = dataPoints[i];
 	}
 
-	for(int i=0;i<rows;i++){
+	
+
+	/*for(int i=0;i<rows;i++){
 		for(int j=0;j<cols;j++){
 			cout<<retentionTable[i][j];
 		}
 
-		cout<<"\n";
-	}
+		//cout<<"\n";
+	}*/
 
 
-	cout<<"\n\n";
+	//cout<<"\n\n";
 
 	//cout<<dataPoints;
 
@@ -228,7 +324,7 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 				}
 
 
-				cout<<topLeft<<":"<<bottomLeft<<":"<<topRight<<":"<<bottomRight<<"\n";
+				//cout<<topLeft<<":"<<bottomLeft<<":"<<topRight<<":"<<bottomRight<<"\n";
 
 
 
@@ -237,9 +333,8 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 					
 					segmentedMats.push_back(croppedimage);
 
-					string imgname = "Cropped Image" + to_string(i+1)+to_string(j+1);
+					string imgname = filename+ "_Table"+to_string(tableId)+"_part_" + to_string(i+1)+"x"+to_string(j+1);
 					imshow(imgname,croppedimage);
-
 				}
 
 			}
@@ -247,13 +342,17 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 		}
 	}
 
+	return segmentedMats;
+	
+}
 
-
+void generateXML(vector<vector<Mat>> segmentedCellsInDoc){
+	/*
 	string username = getenv("USER");
 	string fileInitial = "/home/" + username + "/BE_Project/tes";
 
 	ofstream finalFile;
-	finalFile.open("file.txt", ios::out|ios::trunc);
+	finalFile.open(filename+".txt", ios::out|ios::trunc);
 
 	for(int i=0;i< segmentedMats.size();i++){
 
@@ -285,38 +384,5 @@ void tableRetention(vector<Point> dataPoints, Mat img, int ACH){
 		tempFile.close();
 	}
 
-	finalFile.close();
-}
-
-
-int findRetentionRowCount(vector<Point> dataPoints){
-	sort(dataPoints.begin(), dataPoints.end(), sort_x);
-
-	//cout<<dataPoints<<"\n\n";
-
-
-	int rows=0;
-
-	for(int i=1;i< dataPoints.size();i++){
-		if( abs(dataPoints[i].y - dataPoints[i-1].y) > 2)
-			rows++;
-	}
-
-	return rows+1;
-}
-
-
-int findRetentionColCount(vector<Point> dataPoints){
-	sort(dataPoints.begin(), dataPoints.end(), sort_y);
-	
-	//cout<<dataPoints<<"\n";
-
-	int cols=0;
-
-	for(int i=1;i< dataPoints.size();i++){
-		if( abs(dataPoints[i].x - dataPoints[i-1].x) > 2)
-			cols++;
-	}
-
-	return cols+1;
+	finalFile.close();*/	
 }

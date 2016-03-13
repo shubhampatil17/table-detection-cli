@@ -1,6 +1,7 @@
 //Definition of preprocessing functions
 
 #include "preprocessing.h"
+#include <omp.h>
 
 
 
@@ -8,6 +9,7 @@ Mat image_preprocessing(Mat img){
 
 	Mat binimg(img.rows,img.cols,img.type());
 
+	#pragma omp parallel for
 	for(int i=0; i<img.rows; i++)
 		for(int j=0; j<img.cols; j++)
 			if((int)img.at<uchar>(i,j)>125 && (int)img.at<uchar>(i,j)<200)
@@ -23,6 +25,7 @@ Mat image_preprocessing(Mat img){
 
 Mat pointReduction(Mat img){
 
+	#pragma omp parallel for
 	for(int i=1;i<img.rows-1;i++){
 		for(int j=1;j<img.cols-1;j++){
 

@@ -16,9 +16,15 @@
 using namespace std;
 using namespace cv;
 
-void tableRetention(vector<Point>, Mat, int);
+vector<Mat> cellExtraction(vector<Point>, Mat, int, int, String);
+
+vector<vector<Mat>> multiTablePageSegmentation(Mat,Mat,Mat, String);
+
+void tableRetention(vector<vector<Mat>>, int, String);
+
+void generateXML(vector<vector<Mat>>);
+
 vector<Point> extractIntersectionDataset(Mat);
 
 int findRetentionRowCount(vector<Point>);
 int findRetentionColCount(vector<Point>);
-//Point findPixelPosition(Point);

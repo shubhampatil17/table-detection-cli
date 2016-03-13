@@ -20,13 +20,15 @@ Mat findPts(Mat img, int ACH){
 
 
 
-	Mat left= hitmiss(new_image, hrpattern(0,ACH));
+	Mat left= hitmiss(new_image, hrpattern(1,ACH));
+
 	left=left*200;
 
 
 
 
-	Mat right= hitmiss(new_image, hrpattern(1,ACH));
+	Mat right= hitmiss(new_image, hrpattern(0,ACH));
+
 	right=right*210;
 
 
@@ -63,6 +65,7 @@ Mat findPts(Mat img, int ACH){
 	//imshow("lr_aligned", lr_aligned);
 
 
+
 	output_image = tb_aligned + lr_aligned;
 
 	//display(output_image);
@@ -72,7 +75,7 @@ Mat findPts(Mat img, int ACH){
 
 	//output_image = left + right + top + bottom;
 
-	display(output_image);
+
 
 	//imshow("non modified",output_image);
 
@@ -87,46 +90,47 @@ Mat findPts(Mat img, int ACH){
 
 Mat hrpattern(int leftORight,int ACH){
 
-	Mat kernel_mat = Mat::zeros(3*ACH,3*ACH, CV_32S);
+	Mat kernel_mat = Mat::zeros(ACH+2,3*ACH, CV_32S);
 
-	for(int k=0;k<3*ACH;k++)
+	//for(int k=0;k<3*ACH;k++)						//cols
 
-		for(int i=0,j=2*ACH;i<ACH ; i++,j++){
+		for(int i=0;i<3*ACH ; i++){		//cols
 
-			kernel_mat.at<int>(i,k) = -1;
-			kernel_mat.at<int>(j,k) = -1;
+			kernel_mat.at<int>(0,i) = -1;
+			kernel_mat.at<int>(ACH+1,i) = -1;
+
 		}
 
 		if( leftORight){
 
-			//line ending on left
-			for(int i=0;i<3*ACH/2 ; i++){
+			for(int i=0;i<ACH ; i++){
 
-				kernel_mat.at<int>(3*ACH/2,i) = -1;
+				kernel_mat.at<int>(ACH/2+1,i) = -1;
 			}
 
 
-			for(int i=3*ACH/2;i<3*ACH ; i++){
-				kernel_mat.at<int>(3*ACH/2,i) = 1;
+			for(int i=ACH;i<3*ACH ; i++){
+				kernel_mat.at<int>(ACH/2+1,i) = 1;
+
 			}
 
 		}
 
 		else{
 
-			for(int i=0;i<3*ACH/2 ; i++){
+			for(int i=0;i<2*ACH ; i++){
 
-				kernel_mat.at<int>(3*ACH/2,i) = 1;
+				kernel_mat.at<int>(ACH/2+1,i) = 1;
 			}
 
-			for(int i=3*ACH/2;i<3*ACH ; i++){
+			for(int i=2*ACH;i<3*ACH ; i++){
 
-				kernel_mat.at<int>(3*ACH/2,i) = -1;
+				kernel_mat.at<int>(ACH/2+1,i) = -1;
 			}
 
-			//line ending on right
 
 		}
+
 
 	return kernel_mat;
 }
@@ -138,36 +142,41 @@ Mat hrpattern(int leftORight,int ACH){
 
 Mat vtpattern(int topObottom,int ACH){
 
-	Mat kernel_mat = Mat::zeros(3*ACH,3*ACH, CV_32S);
+	Mat kernel_mat = Mat::zeros(3*ACH,ACH+2, CV_32S);
 
 	for(int k=0;k<3*ACH;k++)
 
-	for(int i=0,j=2*ACH;i<ACH ; i++,j++){
+	//for(int i=0,j=2*ACH;i<ACH ; i++,j++)
+	{
 
-		kernel_mat.at<int>(k,i) = -1;
-		kernel_mat.at<int>(k,j) = -1;
+		kernel_mat.at<int>(k,0) = -1;
+		kernel_mat.at<int>(k,ACH+1) = -1;
+
 	}
 
 	if( topObottom){
 		//line ending on top
 
 		for(int i=0;i<3*ACH/2 ; i++){
-					kernel_mat.at<int>(i,3*ACH/2) = -1;
+
+					kernel_mat.at<int>(i,ACH/2+1) = -1;
 				}
 
 		for(int i=3*ACH/2;i<3*ACH ; i++){
-					kernel_mat.at<int>(i,3*ACH/2) = 1;
+					kernel_mat.at<int>(i,ACH/2+1) = 1;
+
 				}
 
 	}
 	else{
 
 		for(int i=0;i<3*ACH/2 ; i++){
-			kernel_mat.at<int>(i,3*ACH/2) = 1;
+			kernel_mat.at<int>(i,ACH/2+1) = 1;
 		}
 
 		for(int i=3*ACH/2;i<3*ACH ; i++){
-					kernel_mat.at<int>(i,3*ACH/2) = -1;
+					kernel_mat.at<int>(i,ACH/2+1) = -1;
+
 		}
 
 		//line ending on bottom
@@ -254,7 +263,7 @@ Mat h(Mat lr, int ACH){
 
 				if(p[j].x!=X){
 
-					cout<<p[j].x<<"\t"<<p[j].y<<"\t"<<X<<endl;
+
 
 					img.at<uchar>(p[j].y,X) = img.at<uchar>(p[j]);
 
@@ -398,9 +407,7 @@ void display(Mat img){
 
 			if(img.at<uchar>(i,j)!=0){
 
-					int s=(int)img.at<uchar>(i,j);
-					cout<<j<<"\t"<<i<<"\t"<<s<<endl;
-	  	  	
+					int s=(int)img.at<uchar>(i,j);	  	  	
 		  	}
 		}
 	}

@@ -40,7 +40,9 @@ Mat pattern(int top_bottom, int left_right, int ACH){
 
 	Mat kernel_mat = Mat::zeros(3*ACH, 3*ACH, CV_32S);
 	
-	if(top_bottom == 1){
+
+	if(top_bottom){
+
 	//---------------Bottom
 		for(int m=0; m <= 3*ACH/2; m++)
 					kernel_mat.at<int>(m, 3*ACH/2) = 1;
@@ -53,7 +55,9 @@ Mat pattern(int top_bottom, int left_right, int ACH){
 		
 	}
 
-	if(left_right == 1){
+
+	if(left_right){
+
 	//--------------Right
 		for(int m=0 ; m<=3*ACH/2; m++)
 					kernel_mat.at<int>(3*ACH/2, m) = 1;
@@ -85,11 +89,13 @@ Mat intersection(Mat img, int ACH){
 	
 	Mat top_left= hitmiss(new_image, pattern(0,0,ACH));
 	top_left=top_left*10;
-	Mat bottom_left= hitmiss(new_image, pattern(1,1,ACH));
+
+	Mat bottom_left= hitmiss(new_image, pattern(1,0,ACH));
 	bottom_left=bottom_left*70;
 	Mat top_right= hitmiss(new_image, pattern(0,1,ACH));
 	top_right=top_right*20;
-	Mat bottom_right= hitmiss(new_image, pattern(1,0,ACH));
+	Mat bottom_right= hitmiss(new_image, pattern(1,1,ACH));
+
 	bottom_right=bottom_right*40;
 
 	Mat output_image=Mat :: zeros(img.rows,img.cols,img.type());

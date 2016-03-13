@@ -2,6 +2,7 @@
 #include "connect_broken.h"
 #include "ach.h"
 
+
 using namespace std;
 
 
@@ -10,13 +11,16 @@ Mat connect_broken_lines(Mat img, int ACH){
 
 	Mat hr_line_left, hr_line_right, vt_line_top, vt_line_bottom;
 
-	int const anchor_pt1 = 2*ACH - 1, anchor_pt2 = 3*ACH - 1;	
+
+	int const anchor_pt1 = 1.7*ACH - 1, anchor_pt2 = 2*ACH - 1;	
 
 	
 	//--------------------------------------------------------------------------
 	// Joining Vertical broken lines
 
-	Mat kernel_mat_vt = Mat::ones(3*ACH,1,CV_32S);		//kernel matrix for erosion
+
+	Mat kernel_mat_vt = Mat::ones(1.7*ACH,1,CV_32S);		//kernel matrix for erosion
+
 	
 	erode(img, vt_line_top, kernel_mat_vt, Point(0,0), 1, BORDER_CONSTANT, Scalar(0));
 
@@ -37,7 +41,9 @@ Mat connect_broken_lines(Mat img, int ACH){
 	//---------------------------------------------------------------------------
 	//Joining Horizontal broken lines
 	
-	Mat kernel_mat_hr = Mat::ones(1, 3*ACH, CV_32S);
+
+	Mat kernel_mat_hr = Mat::ones(1, 2*ACH, CV_32S);
+
 
 	erode(img, hr_line_left, kernel_mat_hr, Point(0,0), 1, BORDER_CONSTANT, Scalar(0));
 	erode(img, hr_line_right, kernel_mat_hr, Point(anchor_pt2,0), 1, BORDER_CONSTANT, Scalar(0));

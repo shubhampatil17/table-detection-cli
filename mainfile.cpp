@@ -15,6 +15,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <omp.h>
 
 
 using namespace cv;
@@ -36,7 +37,8 @@ int main(int argc, char* argv[]){
 
 	glob(folder,filenames);
 
-	for(size_t i=0;i<filenames.size();i++){
+
+	for(int i=0;i<filenames.size();i++){
 		Mat clrImg = imread(filenames[i], IMREAD_COLOR);
 		Mat ipImg = imread(filenames[i], IMREAD_GRAYSCALE);
 
@@ -102,14 +104,14 @@ void processImage(Mat grayImg, Mat clrImg, String filename){
 
 	Mat dataPoints = reconstruction(intersectPts + nonIntersectPts, reconstructImg, avgCH);
 
-	Mat pointReducedImage = dataPoints.clone();
+	Mat pointReducedImg = dataPoints.clone();
 
-	pointReducedImage = pointReduction(pointReducedImage);
+	pointReducedImg = pointReduction(pointReducedImg);
 
-	vector<Point> pointDataset = extractIntersectionDataset(pointReducedImage);
 
-	tableRetention(pointDataset, binImg, avgCH);
+	vector<vector<Mat>> segmentationData = multiTablePageSegmentation(reconstructImg.clone(), pointReducedImg, clrImg, filename);
 
+	tableRetention(segmentationData, avgCH, filename);
 
 	//imshow("preprocessed Image",binImg);
 	//imshow("Connected Image", connectedImg);
@@ -119,6 +121,6 @@ void processImage(Mat grayImg, Mat clrImg, String filename){
 	//imshow("Intersection Points", intersectPts);
 	//imshow("Non Intersection Points", nonIntersectPts);
 	//imshow("Data Set", dataPoints);
-	//imshow("Point Reduced Image", pointReducedImage);
+	//imshow("Point Reduced Image :"+filename, pointReducedImg);
 	imshow("Reconstructed Image :"+filename, reconstructImg);
 }
