@@ -77,7 +77,7 @@ Mat findPts(Mat img, int ACH){
 
 
 
-	//imshow("non modified",output_image);
+	imshow("NOn itersecting",output_image);
 
 
 	return output_image;

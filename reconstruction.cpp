@@ -38,6 +38,7 @@ struct comparison_xstruct {
 
 
 Mat reconstruction(Mat img,Mat &output, int ACH){
+	cout<<"reached\n"<<endl;
 
 	map<int, vector<Point> > pointsx,pointsy;
 
@@ -62,6 +63,7 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 
 	//=================================================
 	//Draw horizontal lines
+	cout<<"horizontal lines drawing\n";
 
 	vector <Point> xpoints;
 
@@ -105,36 +107,35 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 
 	for(int i=1; i< xpoints.size(); i++){
 		int s=(int)img.at<uchar>(xpoints[i-1]);
+		int p=(int)img.at<uchar>(xpoints[i-1]);
 
 		//=========================================================
 		//Remove squares
 
-		if(s==70 && (int)img.at<uchar>(xpoints[i])==40){
+		if(s==70 && p==40){
 
 
 			continue;
 		}
 
 
-		else if(s==10 && (int)img.at<uchar>(xpoints[i])==20){
+		else if(s==10 && p==20){
 
 			continue;
 		}
 
 
 
-		else if(s==200 && (int)img.at<uchar>(xpoints[i])==210){
+		else if(s==200 && p==210){
 
 
 			continue;
 		}
-
 
 
 	    if(s!=20 && s!=40 && s!=60 && s!=210 && s!=220 && s!=230 && xpoints[i-1].y==xpoints[i].y){
 
 	    	line( output_image,xpoints[i-1],xpoints[i],Scalar(255,255,255), 1, 8 , 0);
-
 			Dataset.at<uchar>(xpoints[i])=255;
 			Dataset.at<uchar>(xpoints[i-1])=255;
 
@@ -145,9 +146,9 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 
 
 
-	//===================================================================================================================
+	//======================================================================================================
 	//Draw Vertical lines
-
+	cout<<"vertical drawing\n";
 
 	vector <Point> ypoints;
 	for (map<int, vector <Point> >::iterator it=pointsy.begin(); it!=pointsy.end(); ++it)
@@ -178,17 +179,18 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 	sort(ypoints.begin(), ypoints.end(), comparison_object);
 
 
-
 	for(int i=1; i< ypoints.size(); i++){
 
 
 		int s=(int)img.at<uchar>(ypoints[i-1]);
+		int p=(int)img.at<uchar>(ypoints[i]);
+
 
 		//=========================================================
 		//Remove squares
 
 
-		if(s==10 && (int)img.at<uchar>(ypoints[i])==70){
+		if(s==10 && p==70){
 
 
 			continue;
@@ -196,24 +198,21 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 		}
 
 
-		else if(s==20 && (int)img.at<uchar>(ypoints[i])==40){
+		else if(s==20 && p==40){
 
 
 			continue;
 
 		}
 
-		else if(s==220 && (int)img.at<uchar>(xpoints[i])==230){
-
+		else if(s==220 && p==230){
 			continue;
 		}
 
 		//================================================================================================
 		//Draw lines
-		//cout<<s<<endl;
 		if(s!=110 && s!=70 && s!=40 && s!=230 && s!=200 && s!=210 && ypoints[i-1].x==ypoints[i].x){
 			line( output_image,ypoints[i-1],ypoints[i],Scalar(255,0,0), 1, 8 , 0);
-
 			Dataset.at<uchar>(ypoints[i])=255;
 			Dataset.at<uchar>(ypoints[i-1])=255;
 
@@ -221,11 +220,10 @@ Mat reconstruction(Mat img,Mat &output, int ACH){
 	}
 
 
-
-
 	output_image=(output_image==0);
 	output_image=output_image*255;
 	output=output_image;
+	cout<<"leaving reconstruction\n";
 
 
 	return Dataset;

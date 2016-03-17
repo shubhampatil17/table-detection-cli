@@ -8,7 +8,7 @@ using namespace std;
 
 Mat connect_broken_lines(Mat img, int ACH){
 
-
+	cout<<"reached"<<endl;
 	Mat hr_line_left, hr_line_right, vt_line_top, vt_line_bottom;
 
 
@@ -56,6 +56,6 @@ Mat connect_broken_lines(Mat img, int ACH){
 
 	Mat IMh= img | hr_union;			//Image merged horizontal lines
 	 
-
+	cout<<"leaving"<<endl;
 	return IMh|IMv;
 }
